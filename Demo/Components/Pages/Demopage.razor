@@ -1,0 +1,152 @@
+﻿@page "/demopage"
+@attribute [StreamRendering]
+
+<div>
+    <InputSelect @bind-Value="Selected1" class="form-control" style="width: 20rem">
+            <option value="-">-</option>
+        <option value="Gras Hochsilo">Gras Hochsilo</option>
+        <option value="Heu in Ballen">Heu in Ballen</option>
+        <option value="Mais Fahrsilo">Mais Fahrsilo</option>
+        <option value="Weide">Weide</option>
+    </InputSelect>
+    
+    @if (Selected1 != "-")
+    {
+        <InputSelect @bind-Value="Selected2" class="form-control" style="width: 20rem">
+            <option value="-">-</option>
+            <option value="Düngen">Düngen</option>
+            <option value="Pflanzenschutz">Pflanzenschutz</option>
+            <option value="Mähen">Mähen</option>
+            <option value="Wenden">Wenden</option>
+        </InputSelect>
+        
+        @if (Selected2 == "Düngen")
+        {
+            <InputSelect @bind-Value="Selected3" class="form-control" style="width: 20rem">
+                <option value="-">-</option>
+                <option value="Düngerstreuer">Düngerstreuer</option>
+                <option value="Mistzetter">Mistzetter</option>
+                <option value="Güllefass">Güllefass</option>
+            </InputSelect>
+            
+            @if (Selected3 != "-")
+            {
+                <InputSelect @bind-Value="Selected4" class="form-control" style="width: 20rem">
+                    <option value="-">-</option>
+                    <option value="Traktor 45PS">Traktor 45PS</option>
+                    <option value="Traktor 70PS">Traktor 70PS</option>
+                    <option value="Traktor 85PS">Traktor 85PS</option>
+                    <option value="Traktor 100PS">Traktor 100PS</option>
+                </InputSelect>
+            }
+        }
+        
+        @if (Selected2 == "Pflanzenschutz")
+        {
+            <InputSelect @bind-Value="Selected3" class="form-control" style="width: 20rem">
+                <option value="-">-</option>
+                <option value="Feldspritze">Feldspritze</option>
+                <option value="Einzelstockspritz">Einzelstockspritze</option>
+            </InputSelect>
+            
+            @if (Selected3 != "-")
+            {
+                <InputSelect @bind-Value="Selected4" class="form-control" style="width: 20rem">
+                    <option value="-">-</option>
+                    <option value="Traktor 45PS">Traktor 45PS</option>
+                    <option value="Traktor 70PS">Traktor 70PS</option>
+                    <option value="Traktor 85PS">Traktor 85PS</option>
+                    <option value="Traktor 100PS">Traktor 100PS</option>
+                </InputSelect>
+            }
+        }
+        
+        @if (Selected2 == "Mähen")
+        {
+            <InputSelect @bind-Value="Selected3" class="form-control" style="width: 20rem">
+                <option value="-">-</option>
+                <option value="Motormäher 1.5m Balg">Motormäher 1.5m Balg</option>
+                <option value="Frontscheibenmähwerk 3m">Frontscheibenmähwerk 3m</option>
+                <option value="Seitenmähwerk 3m">Seitenmähwerk 3ms</option>
+            </InputSelect>
+            
+            @if (Selected3 != "-")
+            {
+                <InputSelect @bind-Value="Selected4" class="form-control" style="width: 20rem">
+                    <option value="-">-</option>
+                    <option value="Traktor 45PS">Traktor 45PS</option>
+                    <option value="Traktor 70PS">Traktor 70PS</option>
+                    <option value="Traktor 85PS">Traktor 85PS</option>
+                    <option value="Traktor 100PS">Traktor 100PS</option>
+                </InputSelect>
+            }
+        }
+        
+        @if (Selected2 == "Wenden")
+        {
+            <InputSelect @bind-Value="Selected3" class="form-control" style="width: 20rem">
+                <option value="-">-</option>
+                <option value="Kreiselheuer 6.1m - 7.5m">Kreiselheuer 6.1m - 7.5m</option>
+                <option value="Schwadwender 2.5m">Schwadwender 2.5m</option>
+            </InputSelect>
+            
+            @if (Selected3 != "-")
+            {
+                <InputSelect @bind-Value="Selected4" class="form-control" style="width: 20rem">
+                    <option value="-">-</option>
+                    <option value="Traktor 45PS">Traktor 45PS</option>
+                    <option value="Traktor 70PS">Traktor 70PS</option>
+                    <option value="Traktor 85PS">Traktor 85PS</option>
+                    <option value="Traktor 100PS">Traktor 100PS</option>
+                </InputSelect>
+            }
+        }
+    }
+    <Button @onclick="Save">Speichern</Button>
+</div>
+@foreach (var item in SavedItems)
+{
+    <p>@item</p>
+}
+@code{
+    private string _selected1;
+    private string _selected2;
+    private string _selected3;
+    private string Selected1
+    {
+        get => _selected1;
+        set
+        {
+            _selected1 = value;
+            Selected2 = "";
+        }
+    }
+    private string Selected2
+    {
+        get => _selected2;
+        set
+        {
+            _selected2 = value;
+            Selected3 = "";
+        }
+    }
+    private string Selected3
+    {
+        get => _selected3;
+        set
+        {
+            _selected3 = value;
+            Selected4 = "";
+        }
+    }
+    private string Selected4 { get; set; }
+    
+    public List<string> SavedItems { get; set; } = new();
+
+    private void Save()
+    {
+        SavedItems.Add($"{Selected1} -> {Selected2} -> {Selected3} -> {Selected4}");
+    }
+
+}
+

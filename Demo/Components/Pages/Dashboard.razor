@@ -1,0 +1,86 @@
+﻿@page "/"
+@attribute [StreamRendering]
+
+<Card Style="width:16rem; margin: 1rem">
+    <CardBody>
+            <p>Max Muster AG</p>
+            <p>5722 Gränichen</p>
+    </CardBody>
+</Card>
+<Card Style="width:800px;margin: 1rem;">
+    <CardBody>
+            <LineChart @ref="lineChart" Width="800" Class="mb-4"/>
+    </CardBody>
+</Card>
+
+
+@code {
+    private LineChart lineChart = default!;
+    private LineChartOptions lineChartOptions = default!;
+    private ChartData chartData = default!;
+
+    protected override void OnInitialized()
+    {
+        var colors = ColorBuilder.CategoricalTwelveColors;
+
+        var labels = new List<string> { "2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023" };
+        var datasets = new List<IChartDataset>();
+
+        var dataset1 = new LineChartDataset
+                       {
+                           Label = "Betrieb",
+                           Data = new List<double> { 10.5, 11, 10.8, 9, 9.5, 10.2, 10.5, 15, 18, 16, 15, 14 },
+                           BackgroundColor = new List<string> { colors[0] },
+                           BorderColor = new List<string> { colors[0] },
+                           BorderWidth = new List<double> { 2 },
+                           HoverBorderWidth = new List<double> { 4 },
+                           PointBackgroundColor = new List<string> { colors[0] },
+                           PointRadius = new List<int> { 0 }, // hide points
+                           PointHoverRadius = new List<int> { 4 }
+                       };
+        datasets.Add(dataset1);
+
+        var dataset2 = new LineChartDataset
+                       {
+                           Label = "Vergleichswert",
+                           Data = new List<double> { 12, 11.5, 10.3, 12, 15, 17, 16.5, 15, 16.5, 12.2, 13.2, 15 },
+                           BackgroundColor = new List<string> { colors[1] },
+                           BorderColor = new List<string> { colors[1] },
+                           BorderWidth = new List<double> { 2 },
+                           HoverBorderWidth = new List<double> { 4 },
+                           PointBackgroundColor = new List<string> { colors[1] },
+                           PointRadius = new List<int> { 0 }, // hide points
+                           PointHoverRadius = new List<int> { 4 }
+                       };
+        datasets.Add(dataset2);
+
+        chartData = new ChartData
+                    {
+                        Labels = labels,
+                        Datasets = datasets
+                    };
+
+        lineChartOptions = new();
+        lineChartOptions.Responsive = true;
+        lineChartOptions.Interaction = new Interaction { Mode = InteractionMode.Index };
+
+        lineChartOptions.Scales.X!.Title!.Text = "Jahr";
+        lineChartOptions.Scales.X.Title.Display = true;
+
+        lineChartOptions.Scales.Y!.Title!.Text = "Kosten / dT";
+        lineChartOptions.Scales.Y.Title.Display = true;
+
+        lineChartOptions.Plugins.Title!.Text = "Grundfutterkosten-Historie";
+        lineChartOptions.Plugins.Title.Display = true;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await lineChart.InitializeAsync(chartData, lineChartOptions);
+        }
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+}

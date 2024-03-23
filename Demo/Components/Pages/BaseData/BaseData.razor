@@ -1,0 +1,171 @@
+﻿@page "/basedata"
+@using Demo.Models
+@using Microsoft.EntityFrameworkCore
+@inject DataContext dbContext
+@rendermode InteractiveServer
+  <PageTitle>Betrieb</PageTitle>
+
+  <Tabs>
+    <Tab Title="Grunddaten">
+      <Content>
+        <Card Style="width:30rem; margin-top:1rem">
+          <CardBody>
+                      <EditForm Model="Model" OnSubmit="SubmitBaseData" FormName="BaseDataForm">
+                        <h3>Bewirtschafter</h3>
+                        <div class="mb-3">
+                          <label class="form-label">Name</label>
+                          <InputText class="form-control" @bind-Value="Model.Name"/>
+                        </div>
+                        <div class="mb-3">
+                          <label class="form-label">PLZ, Ort</label>
+                          <InputText class="form-control" @bind-Value="Model.Place"/>
+                        </div>
+                        <h3>Hof</h3>
+                        <div class="mb-3">
+                          <label class="form-label">Produktionsform</label>
+                          <InputSelect @bind-Value="Model.ProductionForm" class="form-control">
+                              <option value="ÖLN">ÖLN</option>
+                              <option value="Bio">Bio</option>
+                              <option value="Konventionell">Konventionell</option>
+                          </InputSelect>
+                        </div>
+                        <div class="mb-3">
+                          <label class="form-label">Zone</label>
+                          <InputSelect @bind-Value="Model.ProductionZone" class="form-control">
+                              <option value="Tal">Tal</option>
+                              <option value="BZ I">BZ I</option>
+                              <option value="BZ II">BZ II</option>
+                              <option value="BZ III">BZ III</option>
+                              <option value="BZ IV">BZ IV</option>
+                          </InputSelect>
+                        </div>
+                        <div class="mb-3">
+                          <Switch @bind-Value="Model.SiloFeeding" Label="Silofütterung"/>
+                        </div>
+                        <div class="mb-3">
+                          <label class="form-label">Jährlicher Niederschlag</label>
+                          <InputText class="form-control" @bind-Value="Model.Precipitation"/>
+                        </div>
+                        <div class="mb-3">
+                          <label class="form-label">Weidefläche</label>
+                          <InputText class="form-control" @bind-Value="Model.GrazingArea"/>
+                        </div>
+                        <div class="mb-3">
+                          <label class="form-label">Hof-Feld-Distanz</label>
+                          <InputSelect @bind-Value="Model.AvgBarnFieldDistance" class="form-control">
+                              <option value="Tal">1 km</option>
+                              <option value="BZ I">2 km</option>
+                              <option value="BZ II">3 km</option>
+                          </InputSelect>
+                        </div>
+                        <button class="btn btn-primary" type="submit">Speichern</button>
+                      </EditForm>
+          </CardBody>
+
+        </Card>
+
+      </Content>
+    </Tab>
+    <Tab Title="Flächen">
+      <Content>
+        <div style="margin-top:1rem;">
+                  <Button Color="ButtonColor.Primary" @onclick="ShowAreaModalAsync"> Neue Fläche </Button>
+          
+                  <Grid @ref="grid" TItem="AreaModel" class="table table-hover table-bordered table-striped mt-3" Data="Areas">
+                    <GridColumn TItem="AreaModel" HeaderText="Bezeichnung" PropertyName="Name">
+                      @context.Name
+                    </GridColumn>
+                    <GridColumn TItem="AreaModel" HeaderText="Fläche in ha" PropertyName="AreaHa">
+                      @context.AreaHa
+                    </GridColumn>
+                    <GridColumn TItem="AreaModel" HeaderText="Geschätzter Jahresertrag" PropertyName="YearlyYieldInDt">
+                      @context.YearlyYieldInDt
+                    </GridColumn>
+                    <GridColumn TItem="AreaModel" HeaderText="Anzahl Nutzungen" PropertyName="NumberOfHarvests">
+                      @context.NumberOfHarvests
+                    </GridColumn>
+                  </Grid>
+        </div>
+
+      </Content>
+    </Tab>
+  </Tabs>
+
+<Modal @ref="modal" Title="Neue Fläche">
+    <BodyTemplate>
+<EditForm Model="Model" OnSubmit="SubmitBaseData" FormName="BaseDataForm" >
+    <div class="row">
+        <div class="col-5 col-md-3 text-end">Bezeichnung:</div>
+        <InputText @bind-Value="AreaToCreate.Name" />
+    </div>
+    <div class="row">
+        <div class="col-5 col-md-3 text-end">Fläche (ha):</div>
+        <InputNumber @bind-Value="AreaToCreate.AreaHa" />
+    </div>
+    <div class="row">
+        <div class="col-5 col-md-3 text-end">Jahresertrag (dT):</div>
+        <InputNumber @bind-Value="AreaToCreate.YearlyYieldInDt" />
+    </div>
+    <div class="row">
+        <div class="col-5 col-md-3 text-end">Anzahl Nutzungen:</div>
+        <InputNumber @bind-Value="AreaToCreate.NumberOfHarvests" />
+    </div>
+</EditForm>
+    </BodyTemplate>
+    <FooterTemplate>
+        <Button Color="ButtonColor.Secondary" @onclick="HideAreaModalAsync">Close</Button>
+        <Button Color="ButtonColor.Primary" @onclick="AddAreaAsync" >Save changes</Button>
+    </FooterTemplate>
+</Modal>
+
+
+@code
+{
+  [SupplyParameterFromForm] 
+    public BaseDataModel Model { get; set; } = new();
+  
+  [SupplyParameterFromForm] 
+  public List<AreaModel> Areas { get; set; } = new();
+  private Modal modal = default!;
+  private Grid<AreaModel> grid = default!;
+
+  protected override async Task OnInitializedAsync()
+  {
+
+    var data = await dbContext.BaseData.FirstOrDefaultAsync();
+    Areas = await dbContext.Areas.ToListAsync();
+    if (data == null)
+    {
+      data = new BaseDataModel();
+      dbContext.Add(data);
+      await dbContext.SaveChangesAsync();
+    }
+    Model = data ?? new BaseDataModel();
+  }
+  private async Task SubmitBaseData(EditContext arg)
+  {
+    await dbContext.SaveChangesAsync();
+  }
+
+  private async Task ShowAreaModalAsync()
+  {
+    await modal.ShowAsync();
+  }
+  
+  private AreaModel AreaToCreate { get; set; } = new();
+  private async Task AddAreaAsync()
+  {
+    dbContext.Add(AreaToCreate);
+    await dbContext.SaveChangesAsync();
+    Areas.Add(AreaToCreate);
+    AreaToCreate = new();
+    await grid.RefreshDataAsync();
+    await modal.HideAsync();
+  }
+  private async Task HideAreaModalAsync()
+  {
+    await modal.HideAsync();
+  }
+  
+}
+ 

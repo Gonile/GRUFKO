@@ -1,0 +1,156 @@
+﻿@page "/infrastructure"
+@using Demo.Models
+@using Microsoft.EntityFrameworkCore
+@inject DataContext dbContext
+@rendermode InteractiveServer
+  <PageTitle>Grunddaten</PageTitle>
+
+  <Tabs>
+    <Tab Title="Maschinen">
+      <Content>
+              <Button Color="ButtonColor.Primary" @onclick="ShowMachineModalAsync"> Neue Maschine </Button>
+
+              <Grid @ref="MachineGrid" TItem="MachineModel" class="table table-hover table-bordered table-striped mt-3" Data="Machines">
+                <GridColumn TItem="MachineModel" HeaderText="Bezeichnung" PropertyName="Title">
+                  @context.Title
+                </GridColumn>
+                <GridColumn TItem="MachineModel" HeaderText="Typ" PropertyName="Type">
+                  @context.Type
+                </GridColumn>
+              </Grid>
+      </Content>
+    </Tab>
+    <Tab Title="Lager">
+      <Content>
+              <Button Color="ButtonColor.Primary" @onclick="ShowStorageModalAsync"> Neues Lager </Button>
+
+              <Grid @ref="StoreGrid" TItem="StorageModel" class="table table-hover table-bordered table-striped mt-3" Data="Stores">
+                <GridColumn TItem="StorageModel" HeaderText="Bezeichnung" PropertyName="Name">
+                  @context.Name
+                </GridColumn>
+                <GridColumn TItem="StorageModel" HeaderText="Lagerraum" PropertyName="SpaceM3">
+                  @context.SpaceM3 m3 
+                </GridColumn>
+                <GridColumn TItem="StorageModel" HeaderText="Investition" PropertyName="Cost">
+                  @context.Cost CHF
+                </GridColumn>
+                <GridColumn TItem="StorageModel" HeaderText="Nutzungsdauer" PropertyName="UsageDurationYears">
+                  @context.UsageDurationYears Jahre
+                </GridColumn>
+                <GridColumn TItem="StorageModel" HeaderText="Abschreibungen" PropertyName="DeprecationYear">
+                  @context.DeprecationYear CHF/Jahr
+                </GridColumn>
+                <GridColumn TItem="StorageModel" HeaderText="Zinanspruch" PropertyName="YearlyInterest">
+                  @context.YearlyInterest CHF/Jahr
+                </GridColumn>
+                <GridColumn TItem="StorageModel" HeaderText="Jahreskosten / m3" PropertyName="YearlyCostPerM3">
+                  @context.YearlyCostPerM3 CHF/Jahr
+                </GridColumn>
+              </Grid>
+      </Content>
+    </Tab>
+  </Tabs>
+
+<Modal @ref="storageModal" Title="Neues Lager">
+  <BodyTemplate>
+    <EditForm Model="StoreToCreate" OnSubmit="AddStorageAsync" FormName="StorageForm" >
+      <div class="row">
+        <div class="col-5 col-md-3 text-end">Bezeichnung:</div>
+        <InputText @bind-Value="StoreToCreate.Name" />
+      </div>
+      <div class="row">
+        <div class="col-5 col-md-3 text-end">Lagerraum (m3):</div>
+        <InputNumber @bind-Value="StoreToCreate.SpaceM3" />
+      </div>
+      <div class="row">
+        <div class="col-5 col-md-3 text-end">Investition (CHF):</div>
+        <InputNumber @bind-Value="StoreToCreate.Cost" />
+      </div>
+      <div class="row">
+        <div class="col-5 col-md-3 text-end">Nutzungsdauer:</div>
+        <InputNumber @bind-Value="StoreToCreate.UsageDurationYears" />
+      </div>
+    </EditForm>
+  </BodyTemplate>
+  <FooterTemplate>
+    <Button Color="ButtonColor.Secondary" @onclick="HideStorageModalAsync">Close</Button>
+    <Button Color="ButtonColor.Primary" @onclick="AddStorageAsync" >Save changes</Button>
+  </FooterTemplate>
+</Modal>
+
+<Modal @ref="machineModal" Title="Neue Maschine">
+    <BodyTemplate>
+      <EditForm Model="MachineToCreate" OnSubmit="AddMachineAsync" FormName="MachineForm" >
+          <div class="row">
+              <div class="col-5 col-md-3 text-end">Bezeichnung:</div>
+              <InputText @bind-Value="MachineToCreate.Title" />
+          </div>
+          <div class="row">
+              <div class="col-5 col-md-3 text-end">Typ:</div>
+              <InputNumber @bind-Value="MachineToCreate.Type" />
+          </div>
+      </EditForm>
+    </BodyTemplate>
+    <FooterTemplate>
+        <Button Color="ButtonColor.Secondary" @onclick="HideMachineModalAsync">Close</Button>
+        <Button Color="ButtonColor.Primary" @onclick="AddMachineAsync" >Save changes</Button>
+    </FooterTemplate>
+</Modal>
+
+@code
+{
+  [SupplyParameterFromForm] public MachineModel MachineToCreate { get; set; } = new();
+  public Grid<MachineModel> MachineGrid { get; set; } = new();
+  private Modal machineModal = default!;
+  private List<MachineModel> Machines = default!;
+  
+  private List<StorageModel> Stores = default!;
+  private Grid<StorageModel> StoreGrid { get; set; } = new();
+  private Modal storageModal = default!;
+  [SupplyParameterFromForm] public StorageModel StoreToCreate {get;set;} = new();
+
+  protected override async Task OnInitializedAsync()
+  {
+    Stores = await dbContext.Stores.ToListAsync();
+    Machines = await dbContext.Machines.ToListAsync();
+  }
+  
+
+  private async Task ShowStorageModalAsync()
+  {
+    await storageModal.ShowAsync();
+  }
+  
+  private async Task ShowMachineModalAsync()
+  {
+    await machineModal.ShowAsync();
+  }
+  
+  private async Task AddStorageAsync()
+  {
+    dbContext.Add(StoreToCreate);
+    await dbContext.SaveChangesAsync();
+    Stores.Add(StoreToCreate);
+    StoreToCreate = new();
+    await storageModal.HideAsync();
+  }
+  private async Task HideStorageModalAsync()
+  {
+    await storageModal.HideAsync();
+  }
+  
+  private async Task AddMachineAsync()
+  {
+    dbContext.Add(MachineToCreate);
+    await dbContext.SaveChangesAsync();
+    Machines.Add(MachineToCreate);
+    MachineToCreate = new();
+    await machineModal.HideAsync();
+  }
+  
+  private async Task HideMachineModalAsync()
+  {
+    await machineModal.HideAsync();
+  }
+}
+ 
