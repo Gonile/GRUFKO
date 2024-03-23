@@ -2797,7 +2797,7 @@
   },
   "packageFolders": {
     "C:\\Users\\Joel\\.nuget\\packages\\": {},
-    "C:\\Microsoft\\Xamarin\\NuGet\\": {}
+    "C:\\Microsoft\\Xamarin\\NuGet": {}
   },
   "project": {
     "version": "1.0.0",
@@ -2809,7 +2809,7 @@
       "outputPath": "C:\\Users\\Joel\\RiderProjects\\GRUKO\\Demo\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
-        "C:\\Microsoft\\Xamarin\\NuGet\\"
+        "C:\\Microsoft\\Xamarin\\NuGet"
       ],
       "configFilePaths": [
         "C:\\Users\\Joel\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -2833,11 +2833,6 @@
         "warnAsError": [
           "NU1605"
         ]
-      },
-      "restoreAuditProperties": {
-        "enableAudit": "true",
-        "auditLevel": "low",
-        "auditMode": "direct"
       }
     },
     "frameworks": {
